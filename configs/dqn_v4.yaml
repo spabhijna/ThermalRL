@@ -1,15 +1,15 @@
-run_id: run_v1
+run_id: run_v4_reward_v3
 episodes: 500
 learning_rate: 0.001
 gamma: 0.99
 batch_size: 64
 target_update_freq: 100
-reward_type: "v1"
+reward_type: "v3"
 
 epsilon:
   start: 1.0
   min: 0.05
   decay: 0.995
 
-model_save_path: policies/policy_v1.pkl
-csv_save_path: experiments/results_1.csv
+model_save_path: policies/policy_v4_reward_v3.pkl
+csv_save_path: experiments/results_4.csv

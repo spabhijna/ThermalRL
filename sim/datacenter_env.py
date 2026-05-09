@@ -84,6 +84,9 @@ class DataCenterEnv:
         
         if self.reward_type == 'v2':
             reward = -pue - (0.05 * self.cooling_load)
+        elif self.reward_type == 'v3':
+            reward = -pue - (0.02 * self.cooling_load)
+            reward -= abs(self.server_temp - 28.0) * 0.1
         else:
             reward = -pue
         
