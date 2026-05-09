@@ -80,7 +80,7 @@ def main():
     csv_save_path = config.get('csv_save_path', 'experiments/results_1.csv')
     
     device = torch.device("cpu")
-    env = DataCenterEnv()
+    env = DataCenterEnv(config)
     
     # Initialize Networks
     policy_net = DQN().to(device)
@@ -125,8 +125,9 @@ def main():
                     
             next_state, reward, done = env.step(action)
             
-            # Reconstruct PUE for logging purposes
-            step_pue = -(reward + 10.0) if reward < -5.0 else -reward
+            # Calculate true PUE locally so logging is immune to reward function changes
+            actual_load = state[1] * 100.0  # Denormalize
+            step_pue = (actual_load + (action * 15.0)) / actual_load
             episode_pue += step_pue
             
             # Store transition in replay buffer

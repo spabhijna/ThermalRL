@@ -84,8 +84,9 @@ def evaluate_policy(env, model=None, is_baseline=False, num_episodes=10):
                 
             ep_reward += reward
             
-            # PUE Re-calculation
-            step_pue = -(reward + 10.0) if reward < -5.0 else -reward
+            # PUE Re-calculation (robust to config)
+            actual_load = state[1] * 100.0
+            step_pue = (actual_load + (action * 15.0)) / actual_load
             metrics['pues'].append(step_pue)
             
             metrics['total_steps'] += 1
@@ -106,9 +107,14 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate Controllers")
     parser.add_argument('--model', type=str, default='policies/policy_v1.pkl', help='Trained DQN policy')
     parser.add_argument('--episodes', type=int, default=10, help='Episodes to evaluate')
+    parser.add_argument('--config', type=str, default='configs/dqn_v1.yaml', help='YAML config to sync reward functions')
     args = parser.parse_args()
     
-    env = DataCenterEnv()
+    import yaml
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
+        
+    env = DataCenterEnv(config)
     
     # Initialize and load DQN
     device = torch.device("cpu")

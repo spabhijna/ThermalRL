@@ -7,6 +7,7 @@ class DataCenterEnv:
     """
     def __init__(self, config=None):
         self.config = config or {}
+        self.reward_type = self.config.get('reward_type', 'v1')
         
         # Episode length constraint
         self.max_steps = 200
@@ -81,7 +82,10 @@ class DataCenterEnv:
         cooling_power = action * 15.0  # Power consumed by cooling (scales with action)
         pue = (it_power + cooling_power) / it_power
         
-        reward = -pue
+        if self.reward_type == 'v2':
+            reward = -pue - (0.05 * self.cooling_load)
+        else:
+            reward = -pue
         
         # Additional penalty if server_temp > 35
         if self.server_temp > 35.0:
