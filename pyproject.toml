@@ -1,0 +1,13 @@
+[project]
+name = "datacenter-cooling-rl"
+version = "0.1.0"
+description = "Lightweight custom simulator for data center cooling and DQN agent"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy<2.0.0",   
+    "torch<=2.2.2",  
+    "matplotlib",
+    "pandas",
+    "PyYAML",
+]
