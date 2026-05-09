@@ -1,0 +1,15 @@
+run_id: run_v7_reward_v7
+episodes: 500
+learning_rate: 0.001
+gamma: 0.99
+batch_size: 64
+target_update_freq: 100
+reward_type: "v7"
+
+epsilon:
+  start: 1.0
+  min: 0.05
+  decay: 0.997
+
+model_save_path: policies/policy_v7.pkl
+csv_save_path: experiments/results_7.csv

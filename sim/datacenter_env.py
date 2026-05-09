@@ -17,6 +17,7 @@ class DataCenterEnv:
         self.server_temp = 25.0
         self.cooling_load = 50.0
         self.external_temp = 20.0
+        self.prev_action = 2
         
     def _get_normalized_state(self):
         """
@@ -40,6 +41,7 @@ class DataCenterEnv:
         self.server_temp = 25.0 + np.random.uniform(-2.0, 2.0)
         self.cooling_load = 50.0 + np.random.uniform(-10.0, 10.0)
         self.external_temp = 20.0 + np.random.uniform(-5.0, 5.0)
+        self.prev_action = 2
         
         return self._get_normalized_state()
 
@@ -87,12 +89,41 @@ class DataCenterEnv:
         elif self.reward_type == 'v3':
             reward = -pue - (0.02 * self.cooling_load)
             reward -= abs(self.server_temp - 28.0) * 0.1
+        elif self.reward_type == 'v4':
+            temp_penalty = abs(self.server_temp - 28.0) * 0.3
+            action_change_penalty = abs(action - self.prev_action) * 0.05
+            reward = -pue - temp_penalty - action_change_penalty
+        elif self.reward_type == 'v5':
+            in_band = 1.0 if 26.0 <= self.server_temp <= 30.0 else 0.0
+            action_change_penalty = abs(action - self.prev_action) * 0.05
+            reward = -pue + (0.5 * in_band) - action_change_penalty
+        elif self.reward_type == 'v6':
+            if self.server_temp > 30.0:
+                temp_penalty = (self.server_temp - 30.0) * 0.8
+            elif self.server_temp < 24.0:
+                temp_penalty = (24.0 - self.server_temp) * 0.2
+            else:
+                temp_penalty = 0.0
+            reward = -pue - temp_penalty
+        elif self.reward_type == 'v7':
+            if self.server_temp > 28.0:
+                temp_penalty = ((self.server_temp - 28.0) ** 1.5) * 0.4
+            elif self.server_temp < 24.0:
+                temp_penalty = (24.0 - self.server_temp) * 0.15
+            else:
+                temp_penalty = 0.0
+            reward = -pue - temp_penalty
         else:
             reward = -pue
-        
+
         # Additional penalty if server_temp > 35
         if self.server_temp > 35.0:
-            reward -= 10.0
+            if self.reward_type in ('v4', 'v5', 'v6', 'v7'):
+                reward -= 5.0
+            else:
+                reward -= 10.0
+        if self.reward_type in ('v4', 'v5'):
+            self.prev_action = action
             
         # Check termination
         done = self.current_step >= self.max_steps
