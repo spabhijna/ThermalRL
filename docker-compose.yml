@@ -1,0 +1,11 @@
+services:
+  dc-cooling-rl:
+    build: .
+    image: dc-cooling-rl:latest
+    container_name: dc-cooling-rl
+    working_dir: /app
+    volumes:
+      - ./experiments:/app/experiments
+      - ./policies:/app/policies
+      - ./plots:/app/plots
+    command: ["python", "evaluate.py"]

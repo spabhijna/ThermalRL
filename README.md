@@ -80,6 +80,69 @@ No GPU required. Full training completes in under 10 minutes on a standard lapto
 
 ---
 
+## Docker (CPU-only)
+
+Build the image:
+
+```bash
+docker build -t dc-cooling-rl .
+```
+
+### Evaluate an existing policy
+
+```bash
+docker run --rm \
+	-v "$(pwd)/policies:/app/policies" \
+	-v "$(pwd)/experiments:/app/experiments" \
+	-v "$(pwd)/plots:/app/plots" \
+	dc-cooling-rl \
+	python evaluate.py --model policies/policy_v10.pkl --config configs/dqn_v10.yaml --episodes 500
+```
+
+### Train a new experiment
+
+```bash
+docker run --rm \
+	-v "$(pwd)/policies:/app/policies" \
+	-v "$(pwd)/experiments:/app/experiments" \
+	-v "$(pwd)/plots:/app/plots" \
+	dc-cooling-rl \
+	python train.py --config configs/dqn_v1.yaml
+```
+
+### Docker Compose (optional)
+
+```bash
+docker compose build
+docker compose run --rm dc-cooling-rl \
+	python evaluate.py --model policies/policy_v10.pkl --config configs/dqn_v10.yaml --episodes 500
+docker compose run --rm dc-cooling-rl \
+	python train.py --config configs/dqn_v1.yaml
+```
+
+### Volume mounts
+
+- `./policies` persists trained models to the host
+- `./experiments` persists CSV logs to the host
+- `./plots` persists evaluation plots to the host
+
+### CPU-only note
+
+The container is CPU-only (`torch.device("cpu")` in code). No CUDA or GPU runtime is used.
+
+### Reproducibility note
+
+Seeds are set in `train.py` and `evaluate.py` to keep CPU runs deterministic. Expect very small floating-point differences across hosts.
+
+### Common errors
+
+- Outputs missing after the container exits: ensure the volume mounts above are present
+- Permission denied writing to `policies/` or `experiments/`: run with `-u "$(id -u):$(id -g)"` or fix directory permissions
+- Wrong model path: pass `--model policies/...` (container paths)
+- Missing configs: pass `--config configs/...` (configs are baked into the image)
+
+---
+
 ## Reproducing the Final Result
 
 To reproduce the exact numbers in the results table:
