@@ -143,6 +143,38 @@ Seeds are set in `train.py` and `evaluate.py` to keep CPU runs deterministic. Ex
 
 ---
 
+## Testing
+
+Run tests locally:
+
+```bash
+pip install pytest
+pytest
+```
+
+Run specific suites:
+
+```bash
+pytest tests/unit
+pytest tests/integration
+```
+
+Run tests in Docker:
+
+```bash
+docker run --rm dc-cooling-rl pytest
+docker run --rm dc-cooling-rl pytest tests/unit
+docker run --rm dc-cooling-rl pytest tests/integration
+```
+
+Testing philosophy:
+
+- Tests use fixed seeds for determinism
+- All artifacts are written to temporary paths (`tmp_path`)
+- Integration tests run with tiny episode counts to keep runtime fast
+
+---
+
 ## Reproducing the Final Result
 
 To reproduce the exact numbers in the results table:
