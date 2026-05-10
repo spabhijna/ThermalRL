@@ -5,7 +5,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \
     MPLBACKEND=Agg \
-    CUDA_VISIBLE_DEVICES=""
+    CUDA_VISIBLE_DEVICES="" \
+    PYTHONPATH=/app/src
 
 WORKDIR /app
 
@@ -23,4 +24,4 @@ RUN adduser --disabled-password --gecos "" --home /home/app app \
 
 USER app
 
-CMD ["python", "evaluate.py"]
+CMD ["python", "-m", "rel.evaluate"]

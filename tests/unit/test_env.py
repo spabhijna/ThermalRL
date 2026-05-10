@@ -1,6 +1,6 @@
 import numpy as np
 
-from sim.datacenter_env import DataCenterEnv
+from rel.sim.datacenter_env import DataCenterEnv
 
 
 def test_reset_state_shape(env):

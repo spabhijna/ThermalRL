@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 
-from sim.datacenter_env import DataCenterEnv
+from .sim.datacenter_env import DataCenterEnv
 
 # -----------------------------------------
 # Required DQN Architecture for weights loading

@@ -3,3 +3,5 @@ torch<=2.2.2
 matplotlib
 pandas
 PyYAML
+mlflow>=2.11,<3.0
+dvc>=3.50,<4.0

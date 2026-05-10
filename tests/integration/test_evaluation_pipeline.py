@@ -1,8 +1,8 @@
 import yaml
 import torch
 
-import evaluate
-from sim.datacenter_env import DataCenterEnv
+from rel import evaluate
+from rel.sim.datacenter_env import DataCenterEnv
 
 
 def test_evaluation_pipeline(tmp_path, temp_config):

@@ -1,7 +1,7 @@
 import sys
 
-from sim.datacenter_env import DataCenterEnv
-import train
+from rel.sim.datacenter_env import DataCenterEnv
+from rel import train
 
 
 def test_training_loop_small(monkeypatch, temp_config, tmp_path):
@@ -22,7 +22,7 @@ def test_training_loop_small(monkeypatch, temp_config, tmp_path):
             self.max_steps = 10
 
     monkeypatch.setattr(train, "DataCenterEnv", FastEnv)
-    monkeypatch.setattr(sys, "argv", ["train.py", "--config", str(config_path)])
+    monkeypatch.setattr(sys, "argv", ["rel.train", "--config", str(config_path)])
 
     train.main()
 

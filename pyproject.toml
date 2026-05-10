@@ -11,4 +11,6 @@ dependencies = [
     "pandas",
     "PyYAML",
     "pytest",
+    "mlflow>=2.11,<3.0",
+    "dvc>=3.50,<4.0",
 ]

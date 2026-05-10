@@ -8,4 +8,4 @@ services:
       - ./experiments:/app/experiments
       - ./policies:/app/policies
       - ./plots:/app/plots
-    command: ["python", "evaluate.py"]
+    command: ["python", "-m", "rel.evaluate"]

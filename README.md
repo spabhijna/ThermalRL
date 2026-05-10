@@ -35,8 +35,14 @@ At 1 MW IT load, the 2.5% PUE reduction corresponds to ~30 kW less cooling overh
 
 ```
 ThermalRL/
-├── sim/
-│   └── datacenter_env.py       # Custom Gym-style environment (NumPy only)
+├── src/
+│   └── rel/
+│       ├── sim/
+│       │   └── datacenter_env.py   # Custom Gym-style environment (NumPy only)
+│       ├── train.py                # Training script
+│       ├── evaluate.py             # Evaluation + comparison table + plot
+│       ├── plot_results.py         # Training curve plotter
+│       └── main.py
 ├── configs/
 │   ├── dqn_v1.yaml             # Baseline hyperparameters
 │   ├── dqn_v2.yaml             # Slower epsilon decay variant
@@ -50,9 +56,6 @@ ThermalRL/
 ├── plots/
 │   ├── training_curve.png      # Reward convergence over episodes
 │   └── temp_comparison.png     # Baseline vs DQN temperature trace
-├── train.py                    # Training script
-├── evaluate.py                 # Evaluation + comparison table + plot
-├── plot_results.py             # Training curve plotter
 └── pyproject.toml
 ```
 
@@ -73,6 +76,8 @@ Run commands with `uv run` (no manual activation needed), or activate the enviro
 ```bash
 source .venv/bin/activate
 ```
+
+For module runs in the `src/` layout, prefix commands with `PYTHONPATH=src`.
 
 **Dependencies:** `torch` (CPU), `numpy`, `matplotlib`, `pandas`, `pyyaml`
 
@@ -96,7 +101,7 @@ docker run --rm \
 	-v "$(pwd)/experiments:/app/experiments" \
 	-v "$(pwd)/plots:/app/plots" \
 	dc-cooling-rl \
-	python evaluate.py --model policies/policy_v10.pkl --config configs/dqn_v10.yaml --episodes 500
+	python -m rel.evaluate --model policies/policy_v10.pkl --config configs/dqn_v10.yaml --episodes 500
 ```
 
 ### Train a new experiment
@@ -107,7 +112,7 @@ docker run --rm \
 	-v "$(pwd)/experiments:/app/experiments" \
 	-v "$(pwd)/plots:/app/plots" \
 	dc-cooling-rl \
-	python train.py --config configs/dqn_v1.yaml
+	python -m rel.train --config configs/dqn_v1.yaml
 ```
 
 ### Docker Compose (optional)
@@ -115,9 +120,9 @@ docker run --rm \
 ```bash
 docker compose build
 docker compose run --rm dc-cooling-rl \
-	python evaluate.py --model policies/policy_v10.pkl --config configs/dqn_v10.yaml --episodes 500
+	python -m rel.evaluate --model policies/policy_v10.pkl --config configs/dqn_v10.yaml --episodes 500
 docker compose run --rm dc-cooling-rl \
-	python train.py --config configs/dqn_v1.yaml
+	python -m rel.train --config configs/dqn_v1.yaml
 ```
 
 ### Volume mounts
@@ -132,7 +137,7 @@ The container is CPU-only (`torch.device("cpu")` in code). No CUDA or GPU runtim
 
 ### Reproducibility note
 
-Seeds are set in `train.py` and `evaluate.py` to keep CPU runs deterministic. Expect very small floating-point differences across hosts.
+Seeds are set in `src/rel/train.py` and `src/rel/evaluate.py` to keep CPU runs deterministic. Expect very small floating-point differences across hosts.
 
 ### Common errors
 
@@ -202,19 +207,75 @@ The pipeline never retrains models and never writes into `policies/` or `experim
 
 ---
 
+## MLflow Usage
+
+Start the MLflow UI (local filesystem backend):
+
+```bash
+mlflow ui --backend-store-uri ./mlruns
+```
+
+Register existing policies without retraining:
+
+```bash
+python mlops/mlflow/register_existing_models.py
+```
+
+Evaluate and log a policy run:
+
+```bash
+python mlops/mlflow/evaluate_and_log.py \
+	--model policies/policy_v10.pkl \
+	--config configs/dqn_v10.yaml \
+	--episodes 10
+```
+
+Track a new training run via wrapper (outputs stored in temp paths only):
+
+```bash
+python mlops/mlflow/track_training_wrapper.py \
+	--config configs/dqn_v1.yaml \
+	--episodes 2
+```
+
+MLflow runs are stored in `./mlruns` and do not overwrite `policies/` or `experiments/`.
+
+---
+
+## DVC Usage
+
+Initialize DVC and set up a local remote:
+
+```bash
+bash mlops/dvc/setup_dvc.sh
+```
+
+Track artifacts and sync:
+
+```bash
+dvc status
+dvc add experiments plots
+dvc push
+dvc pull
+```
+
+By default, DVC tracks `experiments/` and `plots/` only. Policies remain untracked and immutable.
+
+---
+
 ## Reproducing the Final Result
 
 To reproduce the exact numbers in the results table:
 
 ```bash
 # Train the final policy
-uv run python train.py --config configs/dqn_v10.yaml
+PYTHONPATH=src uv run python -m rel.train --config configs/dqn_v10.yaml
 
 # Evaluate against baseline over 500 episodes
-uv run python evaluate.py --model policies/policy_v10.pkl --config configs/dqn_v10.yaml --episodes 500
+PYTHONPATH=src uv run python -m rel.evaluate --model policies/policy_v10.pkl --config configs/dqn_v10.yaml --episodes 500
 
 # Plot training convergence
-uv run python plot_results.py --csv experiments/results_v10.csv --output plots/training_curve.png
+PYTHONPATH=src uv run python -m rel.plot_results --csv experiments/results_v10.csv --output plots/training_curve.png
 ```
 
 Seeds are locked (`numpy.random.seed(42)`, `torch.manual_seed(42)`, `random.seed(42)`) so results are deterministic across machines.
@@ -223,7 +284,7 @@ Seeds are locked (`numpy.random.seed(42)`, `torch.manual_seed(42)`, `random.seed
 
 ## Environment
 
-`sim/datacenter_env.py` implements a lightweight single-zone thermal model with no external dependencies.
+`src/rel/sim/datacenter_env.py` implements a lightweight single-zone thermal model with no external dependencies.
 
 | Component | Detail |
 |---|---|

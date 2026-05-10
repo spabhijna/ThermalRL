@@ -30,12 +30,16 @@ def validate_config(config):
 
 
 
-def test_load_config_v1():
+def test_load_all_configs():
     root = Path(__file__).resolve().parents[2]
-    config_path = root / "configs" / "dqn_v1.yaml"
+    configs_dir = root / "configs"
 
-    config = yaml.safe_load(config_path.read_text())
-    validate_config(config)
+    config_paths = sorted(configs_dir.glob("*.yaml"))
+    assert config_paths, "No config files found in configs/"
+
+    for config_path in config_paths:
+        config = yaml.safe_load(config_path.read_text())
+        validate_config(config)
 
 
 

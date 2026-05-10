@@ -1,6 +1,6 @@
 import numpy as np
 
-from train import ReplayBuffer
+from rel.train import ReplayBuffer
 
 
 def test_replay_buffer_insertion_and_capacity():

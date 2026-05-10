@@ -12,3 +12,7 @@ venv/
 .uv/
 .cache/
 .ipynb_checkpoints/
+mlruns/
+dvc-storage/
+.dvc/cache/
+.dvc/tmp/

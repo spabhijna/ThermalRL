@@ -1,6 +1,6 @@
 import torch
 
-from train import DQN
+from rel.train import DQN
 
 
 def test_forward_shape_cpu():

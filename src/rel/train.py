@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from sim.datacenter_env import DataCenterEnv
+from .sim.datacenter_env import DataCenterEnv
 
 # -----------------------------------------
 # Neural Network Architecture
