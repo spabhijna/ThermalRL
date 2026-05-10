@@ -8,3 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
+
+# MLOps artifacts
+mlruns/
+dvc-storage/
+.dvc/cache/
+.dvc/tmp/
+/experiments
+/plots

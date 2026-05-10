@@ -1,0 +1,6 @@
+outs:
+- md5: 1ab6e9c69fc65a1f20d8ad6ece15da91.dir
+  size: 2422608
+  nfiles: 5
+  hash: md5
+  path: plots
