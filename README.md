@@ -175,6 +175,33 @@ Testing philosophy:
 
 ---
 
+## CI/CD Pipeline
+
+GitHub Actions runs a lightweight, CPU-only pipeline on every push and pull request. The workflow builds the Docker image and runs tests inside the container to keep the environment consistent.
+
+### CI (build + tests)
+
+- Workflow: `.github/workflows/ci.yml`
+- Trigger: `push`, `pull_request`
+- Steps: `docker build` then `docker run --rm dc-cooling-rl pytest`
+
+### Docker image publishing (optional)
+
+- Workflow: `.github/workflows/docker-publish.yml`
+- Trigger: version tags like `v1.0.0`
+- Publishes: `ghcr.io/<owner>/dc-cooling-rl:<tag>` (plus `latest`)
+
+Example tag push:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The pipeline never retrains models and never writes into `policies/` or `experiments/`.
+
+---
+
 ## Reproducing the Final Result
 
 To reproduce the exact numbers in the results table:
